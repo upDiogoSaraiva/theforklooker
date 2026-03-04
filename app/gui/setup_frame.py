@@ -2,11 +2,14 @@
 Setup frame — Restaurant URL, watches, Telegram, check interval.
 """
 
+import re
 import tkinter as tk
 from tkinter import ttk, messagebox
 
 from app.gui import styles as S
 from app.core.url_parser import parse_thefork_input, resolve_uuid_from_numeric_id
+
+_DATE_RE = re.compile(r"^\d{4}-\d{2}-\d{2}$")
 
 
 class SetupFrame(tk.Frame):
@@ -188,10 +191,14 @@ class SetupFrame(tk.Frame):
         tk.Label(r3, text="Dates (YYYY-MM-DD, comma-separated):", bg=S.BG_CARD, fg=S.FG_DIM, font=S.FONT_SMALL).pack(anchor="w")
         dates_var = tk.StringVar(value=watch_data["dates"])
         watch_data["dates_var"] = dates_var
-        tk.Entry(
+        dates_entry = tk.Entry(
             r3, textvariable=dates_var, bg=S.BG_INPUT, fg=S.FG,
             insertbackground=S.FG, font=S.FONT_MONO, relief="flat",
-        ).pack(fill="x", pady=2)
+        )
+        dates_entry.pack(fill="x", pady=2)
+        dates_err = tk.Label(r3, text="", bg=S.BG_CARD, fg=S.ACCENT_RED, font=S.FONT_SMALL)
+        dates_err.pack(anchor="w")
+        dates_var.trace_add("write", lambda *_: self._validate_dates(dates_var, dates_entry, dates_err))
 
         # Row 4: priority
         r4 = tk.Frame(card, bg=S.BG_CARD)
@@ -294,6 +301,24 @@ class SetupFrame(tk.Frame):
     # ------------------------------------------------------------------
     # Helpers
     # ------------------------------------------------------------------
+
+    def _validate_dates(self, var: tk.StringVar, entry: tk.Entry, err_label: tk.Label):
+        raw = var.get().strip()
+        if not raw:
+            entry.config(bg=S.BG_INPUT)
+            err_label.config(text="")
+            return
+        bad = []
+        for d in raw.split(","):
+            d = d.strip()
+            if d and not _DATE_RE.match(d):
+                bad.append(d)
+        if bad:
+            entry.config(bg="#5c2030")
+            err_label.config(text=f"Invalid: {', '.join(bad[:3])}")
+        else:
+            entry.config(bg=S.BG_INPUT)
+            err_label.config(text="")
 
     def _section_label(self, parent, text):
         tk.Label(

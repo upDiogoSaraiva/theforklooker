@@ -29,6 +29,10 @@ def main():
     except Exception:
         pass
 
+    # Apply modern dark theme to ttk widgets
+    from app.gui.styles import apply_theme
+    apply_theme(root)
+
     # Import here so PyInstaller picks up the dependency chain
     from app.app import App
 

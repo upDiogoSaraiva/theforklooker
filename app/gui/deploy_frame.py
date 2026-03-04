@@ -6,7 +6,7 @@ import json
 import queue
 import threading
 import tkinter as tk
-from tkinter import scrolledtext
+from tkinter import messagebox, scrolledtext
 
 from app.gui import styles as S
 from app.core.config_builder import build_config
@@ -96,6 +96,10 @@ class DeployFrame(tk.Frame):
     # Deploy
     # ------------------------------------------------------------------
 
+    def on_show(self):
+        """Called when this tab becomes visible — auto-refresh the summary."""
+        self._refresh_summary()
+
     def _start_deploy(self):
         setup = self.app.setup_frame.get_data()
         server = self.app.server_frame.get_data()
@@ -109,6 +113,13 @@ class DeployFrame(tk.Frame):
             return
         if not server.get("ip") or not server.get("key_path"):
             self._log("ERROR: VM IP or SSH key missing. Go to Server tab.\n", "fail")
+            return
+
+        # Confirm
+        if not messagebox.askyesno(
+            "Confirm Deploy",
+            "This will restart the monitor on the VM.\n\nContinue?",
+        ):
             return
 
         # Build config

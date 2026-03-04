@@ -22,9 +22,17 @@ class StatusFrame(tk.Frame):
         inner = tk.Frame(self, bg=S.BG)
         inner.pack(fill="both", expand=True, padx=S.PAD, pady=S.PAD)
 
+        # Header row with status badge
+        header_row = tk.Frame(inner, bg=S.BG)
+        header_row.pack(fill="x", pady=(0, S.PAD))
         tk.Label(
-            inner, text="MONITOR STATUS", bg=S.BG, fg=S.ACCENT_BLUE, font=S.FONT_HEADING,
-        ).pack(anchor="w", pady=(0, S.PAD))
+            header_row, text="MONITOR STATUS", bg=S.BG, fg=S.ACCENT_BLUE, font=S.FONT_HEADING,
+        ).pack(side="left")
+        self.running_badge = tk.Label(
+            header_row, text="  CHECKING...  ", bg=S.BG_INPUT, fg=S.FG_DIM,
+            font=S.FONT_SMALL, padx=8, pady=2,
+        )
+        self.running_badge.pack(side="left", padx=(S.PAD, 0))
 
         # Buttons
         btn_row = tk.Frame(inner, bg=S.BG)
@@ -67,6 +75,54 @@ class StatusFrame(tk.Frame):
             insertbackground=S.FG, selectbackground=S.ACCENT_BLUE,
         )
         self.log_text.pack(fill="both", expand=True)
+
+    def on_show(self):
+        """Called when this tab becomes visible — check if monitor is running."""
+        self._check_running()
+
+    def _check_running(self):
+        deployer = self._get_deployer()
+        if not deployer:
+            self.running_badge.config(text="  NO SERVER  ", bg=S.BG_INPUT, fg=S.FG_DIM)
+            return
+
+        self.running_badge.config(text="  CHECKING...  ", bg=S.BG_INPUT, fg=S.FG_DIM)
+
+        def _run():
+            ok, msg = deployer.test_connection()
+            if not ok:
+                self.after(0, lambda: self.running_badge.config(
+                    text="  UNREACHABLE  ", bg=S.ACCENT_RED, fg=S.BG,
+                ))
+                return
+            # Check screen session
+            try:
+                import paramiko
+                client = paramiko.SSHClient()
+                client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+                server = self.app.server_frame.get_data()
+                client.connect(
+                    server["ip"], port=int(server.get("port", 22)),
+                    username=server.get("username", "ubuntu"),
+                    pkey=deployer._load_key(), timeout=10,
+                )
+                _, stdout, _ = client.exec_command("screen -ls | grep thefork")
+                result = stdout.read().decode().strip()
+                client.close()
+                if result:
+                    self.after(0, lambda: self.running_badge.config(
+                        text="  RUNNING  ", bg=S.ACCENT_GREEN, fg=S.BG,
+                    ))
+                else:
+                    self.after(0, lambda: self.running_badge.config(
+                        text="  STOPPED  ", bg=S.ACCENT_RED, fg=S.BG,
+                    ))
+            except Exception:
+                self.after(0, lambda: self.running_badge.config(
+                    text="  UNKNOWN  ", bg=S.ACCENT_YELLOW, fg=S.BG,
+                ))
+
+        threading.Thread(target=_run, daemon=True).start()
 
     # ------------------------------------------------------------------
     # Actions

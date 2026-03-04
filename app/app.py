@@ -65,6 +65,19 @@ class App(tk.Frame):
                 bg=S.SIDEBAR_ACTIVE_BG if self._current_page == n else S.BG_SIDEBAR
             ))
 
+        # Save button at bottom of sidebar
+        sidebar_bottom = tk.Frame(sidebar, bg=S.BG_SIDEBAR)
+        sidebar_bottom.pack(side="bottom", fill="x", pady=S.PAD)
+        tk.Button(
+            sidebar_bottom, text="Save", bg=S.BG_INPUT, fg=S.FG,
+            font=S.FONT_SMALL, relief="flat", cursor="hand2",
+            command=self._save_with_feedback,
+        ).pack(fill="x", padx=S.PAD)
+        self._save_label = tk.Label(
+            sidebar_bottom, text="", bg=S.BG_SIDEBAR, fg=S.ACCENT_GREEN, font=S.FONT_SMALL,
+        )
+        self._save_label.pack()
+
         # Content area
         self._content = tk.Frame(self, bg=S.BG)
         self._content.pack(side="left", fill="both", expand=True)
@@ -88,8 +101,13 @@ class App(tk.Frame):
             frame.pack_forget()
 
         # Show selected
-        self._frames[name].pack(fill="both", expand=True)
+        frame = self._frames[name]
+        frame.pack(fill="both", expand=True)
         self._current_page = name
+
+        # Notify frame it's being shown (for auto-refresh)
+        if hasattr(frame, "on_show"):
+            frame.on_show()
 
         # Update nav button styles
         for btn_name, btn in self._nav_buttons.items():
@@ -117,3 +135,8 @@ class App(tk.Frame):
             "server": self.server_frame.get_data(),
         }
         settings.save(data)
+
+    def _save_with_feedback(self):
+        self.save_settings()
+        self._save_label.config(text="Saved!", fg=S.ACCENT_GREEN)
+        self.after(2000, lambda: self._save_label.config(text=""))
