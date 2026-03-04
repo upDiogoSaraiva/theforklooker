@@ -19,6 +19,8 @@ keys/
 # App state
 .alerted.json
 .claude/
+.claude.local.md
+CLAUDE.md
 
 # OS
 .DS_Store

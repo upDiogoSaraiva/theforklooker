@@ -1,18 +1,20 @@
 # TheFork Looker
 
-Monitor restaurant availability on [TheFork](https://www.thefork.com) and get Telegram notifications when a table opens up.
+Ever tried booking that one restaurant that's always fully booked? You check TheFork every day, refresh the page, and by the time a cancellation opens up someone else already grabbed it.
 
-Deploys a monitoring bot to a free Oracle Cloud VM with one click. No coding required.
+TheFork Looker watches the restaurant for you. It checks every 10 minutes, 24/7, and the moment a table opens up you get a Telegram notification on your phone. Runs on a free Oracle Cloud VM so you don't need to keep your computer on.
+
+No coding required — just download the app, paste the restaurant link, and deploy.
 
 ## How It Works
 
 1. Download the Windows app (`TheForkLooker.exe`)
 2. Paste the TheFork restaurant URL
-3. Configure which dates, party size, and meal you want
+3. Pick your dates, party size, and meal type
 4. Point to your Oracle Cloud VM and SSH key
 5. Hit Deploy
 
-The monitor checks every ~10 minutes using a real browser (Playwright + Chromium) to bypass TheFork's bot protection, and sends a Telegram message the moment a table becomes available.
+The bot runs on the VM using a real browser (Playwright + Chromium) to get past TheFork's bot protection. When it finds an opening, you get a Telegram message instantly.
 
 ## Quick Start
 
