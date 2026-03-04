@@ -1,0 +1,29 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+dist/
+build/temp/
+*.spec.bak
+.buildenv/
+
+# IDE
+.vscode/
+.idea/
+
+# Keys and secrets
+keys/
+*.pem
+*.key
+
+# App state
+.alerted.json
+.claude/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# PyInstaller
+*.manifest
+*.exe
