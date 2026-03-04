@@ -66,7 +66,7 @@ https://widget.thefork.com/en/999d3391-000e-42f1-b7bf-ce987f2f4090?step=date
 ## Running from Source
 
 ```bash
-git clone https://github.com/YOUR_USER/theforklooker.git
+git clone https://github.com/upDiogoSaraiva/theforklooker.git
 cd theforklooker
 
 pip install paramiko
