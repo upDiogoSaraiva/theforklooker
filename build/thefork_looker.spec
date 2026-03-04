@@ -10,6 +10,8 @@ a = Analysis(
     binaries=[],
     datas=[
         (os.path.join(app_dir, 'assets', 'thefork_monitor.py'), os.path.join('assets')),
+        (os.path.join(app_dir, 'assets', 'icon.ico'), os.path.join('assets')),
+        (os.path.join(app_dir, 'assets', 'icon.png'), os.path.join('assets')),
     ],
     hiddenimports=['paramiko', 'nacl', 'bcrypt', 'cryptography'],
     hookspath=[],

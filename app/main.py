@@ -21,11 +21,11 @@ def main():
     root.minsize(850, 600)
     root.configure(bg="#1e1e2e")
 
-    # Set icon if available
+    # Set window icon (title bar + taskbar)
+    icon_ico = resource_path(os.path.join("assets", "icon.ico"))
     try:
-        icon_path = resource_path(os.path.join("assets", "icon.ico"))
-        if os.path.exists(icon_path):
-            root.iconbitmap(icon_path)
+        if os.path.exists(icon_ico):
+            root.iconbitmap(default=icon_ico)
     except Exception:
         pass
 
@@ -36,7 +36,9 @@ def main():
     # Import here so PyInstaller picks up the dependency chain
     from app.app import App
 
-    app = App(root)
+    # Pass the assets path so App can load the PNG icon for the sidebar
+    assets_dir = resource_path("assets")
+    app = App(root, assets_dir=assets_dir)
     app.pack(fill="both", expand=True)
 
     root.mainloop()

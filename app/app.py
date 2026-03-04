@@ -2,6 +2,7 @@
 Main application controller — sidebar navigation + frame switching.
 """
 
+import os
 import tkinter as tk
 
 from app.gui import styles as S
@@ -22,10 +23,12 @@ class App(tk.Frame):
         ("Status", "status_frame"),
     ]
 
-    def __init__(self, parent):
+    def __init__(self, parent, assets_dir: str = ""):
         super().__init__(parent, bg=S.BG)
+        self._assets_dir = assets_dir
         self._current_page = None
         self._nav_buttons: dict[str, tk.Button] = {}
+        self._icon_photo = None  # prevent garbage collection
         self._build_ui()
         self._load_settings()
         self._show_page("setup_frame")
@@ -40,11 +43,21 @@ class App(tk.Frame):
         sidebar.pack(side="left", fill="y")
         sidebar.pack_propagate(False)
 
-        # Logo / title
+        # Logo icon + title
+        logo_frame = tk.Frame(sidebar, bg=S.BG_SIDEBAR)
+        logo_frame.pack(pady=(S.PAD * 2, S.PAD * 2))
+
+        icon_png = os.path.join(self._assets_dir, "icon.png")
+        if os.path.exists(icon_png):
+            self._icon_photo = tk.PhotoImage(file=icon_png)
+            tk.Label(
+                logo_frame, image=self._icon_photo, bg=S.BG_SIDEBAR,
+            ).pack(pady=(0, 8))
+
         tk.Label(
-            sidebar, text="TheFork\nLooker", bg=S.BG_SIDEBAR, fg=S.ACCENT,
+            logo_frame, text="TheFork\nLooker", bg=S.BG_SIDEBAR, fg=S.ACCENT,
             font=S.FONT_TITLE, justify="center",
-        ).pack(pady=(S.PAD * 2, S.PAD * 2))
+        ).pack()
 
         # Nav buttons
         for label, attr_name in self.PAGES:
